@@ -1,0 +1,20 @@
+# syntax=docker/dockerfile:1
+
+ARG VARIANT="2.0.25"
+
+FROM curlimages/curl as builder
+ARG VARIANT
+
+WORKDIR /app
+
+RUN \
+    curl -L https://dlcdn.apache.org/pdfbox/${VARIANT}/pdfbox-app-${VARIANT}.jar --output /app/pdfbox-app-${VARIANT}.jar
+
+FROM openjdk:19-slim-bullseye
+ARG VARIANT
+
+COPY --from=builder /app/pdfbox-app-${VARIANT}.jar /app/
+
+WORKDIR /ws
+
+ENTRYPOINT [ "java", "-jar", "/app/pdfbox-app-${VARIANT}.jar"]
